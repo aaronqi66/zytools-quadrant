@@ -1,0 +1,190 @@
+.quadrant-container {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+/* 坐标轴样式 */
+.axis {
+  position: absolute;
+  background-color: #000;
+}
+
+.x-axis {
+  width: 100%;
+  height: 2px;
+  top: 50%;
+  left: 0;
+}
+
+.y-axis {
+  width: 2px;
+  height: 100%;
+  top: 0;
+  left: 50%;
+}
+
+/* 箭头样式 */
+.arrow-right {
+  position: absolute;
+  right: 0;
+  top: -8px;
+  width: 0;
+  height: 0;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-left: 18px solid #000;
+}
+
+.arrow-up {
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 18px solid #000;
+}
+
+/* 坐标轴标签 - 外侧位置 */
+.axis-label {
+  position: absolute;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  text-align: center;
+  width: 96px; /* 增加宽度以容纳6个汉字 */
+  height: 40px; /* 增加高度以容纳2行文字 */
+  outline: none;
+  white-space: pre-wrap; /* 允许文本换行 */
+  word-break: break-word; /* 在单词间断行 */
+  line-height: 20px; /* 设置行高使两行文字能够正常显示 */
+  padding: 0;
+  resize: none;
+  overflow: hidden;
+}
+
+/* 每行最多显示6个汉字 */
+.axis-label::after {
+  content: "";
+  display: block;
+  width: 100%;
+}
+
+/* 左侧标签 */
+.x1-outer {
+  left: -100px; /* 调整位置以适应更宽的标签 */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 右侧标签 */
+.x2-outer {
+  right: -100px; /* 调整位置以适应更宽的标签 */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 上方标签 */
+.y1-outer {
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 下方标签 */
+.y2-outer {
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 导出图片时使用的标签样式 */
+.export-label {
+  position: absolute;
+  font-size: 16px;
+  text-align: center;
+  width: 96px;
+  line-height: 20px;
+  word-break: break-word;
+  color: #000000; /* 确保导出时标签颜色为黑色 */
+  display: block; /* 确保标签显示 */
+  z-index: 10; /* 提高z-index确保可见 */
+}
+
+/* 特别处理底部标签 */
+.export-label.y2-outer {
+  bottom: -50px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+/* 内容项样式 */
+.content-item {
+  position: absolute;
+  max-width: 200px;
+  padding: 5px;
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  word-break: break-word;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  line-height: 1.2; /* 缩小行间距 */
+  font-size: 14px; /* 稍微减小默认字体大小 */
+}
+
+.content-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.delete-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  padding: 0;
+  text-align: center;
+}
+
+.content-item:hover .delete-button {
+  display: block;
+}
+
+.delete-button:hover {
+  background-color: #ff7875;
+}
+
+/* 删除这个浮动的CSS属性 */
+/* pointer-events: none; */
+
+/* 添加拖动相关样式 */
+.content-item {
+  position: absolute;
+  padding: 5px 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: move; /* 添加移动光标 */
+  user-select: none; /* 防止文本被选中 */
+  touch-action: none; /* 防止触摸事件的默认行为 */
+  z-index: 1;
+}
+
+.content-item.dragging {
+  opacity: 0.8;
+  z-index: 100;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
