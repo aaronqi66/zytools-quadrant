@@ -71,7 +71,7 @@ function App() {
       exportContainer.style.position = 'relative';
       exportContainer.style.width = `${width + 200}px`; // 增加宽度以容纳左右标签
       exportContainer.style.height = `${height + 200}px`; // 增加高度以容纳上下标签
-      exportContainer.style.backgroundColor = '#2c2c2c';
+      exportContainer.style.backgroundColor = '#ffffff'; // 白色背景
       exportContainer.style.padding = '0';
       
       // 克隆四象限视图
@@ -87,48 +87,68 @@ function App() {
         textarea.parentNode.removeChild(textarea);
       });
       
-      // 添加标签
+      // 添加标签 - 改进换行处理
       const leftLabel = document.createElement('div');
       leftLabel.textContent = labelTexts.x1;
       leftLabel.style.position = 'absolute';
-      leftLabel.style.left = '20px';
+      leftLabel.style.left = '10px';
       leftLabel.style.top = `${100 + height/2}px`;
-      leftLabel.style.color = '#ffffff';
-      leftLabel.style.fontSize = '24px';
+      leftLabel.style.color = '#222222'; // 深色文字
+      leftLabel.style.fontSize = '18px';
+      leftLabel.style.fontWeight = '500';
       leftLabel.style.textAlign = 'center';
+      leftLabel.style.width = '80px';
+      leftLabel.style.wordWrap = 'break-word';
+      leftLabel.style.whiteSpace = 'pre-wrap';
+      leftLabel.style.lineHeight = '1.2';
       leftLabel.style.transform = 'translateY(-50%)';
       exportContainer.appendChild(leftLabel);
       
       const rightLabel = document.createElement('div');
       rightLabel.textContent = labelTexts.x2;
       rightLabel.style.position = 'absolute';
-      rightLabel.style.right = '20px';
+      rightLabel.style.right = '10px';
       rightLabel.style.top = `${100 + height/2}px`;
-      rightLabel.style.color = '#ffffff';
-      rightLabel.style.fontSize = '24px';
+      rightLabel.style.color = '#222222';
+      rightLabel.style.fontSize = '18px';
+      rightLabel.style.fontWeight = '500';
       rightLabel.style.textAlign = 'center';
+      rightLabel.style.width = '80px';
+      rightLabel.style.wordWrap = 'break-word';
+      rightLabel.style.whiteSpace = 'pre-wrap';
+      rightLabel.style.lineHeight = '1.2';
       rightLabel.style.transform = 'translateY(-50%)';
       exportContainer.appendChild(rightLabel);
       
       const topLabel = document.createElement('div');
       topLabel.textContent = labelTexts.y1;
       topLabel.style.position = 'absolute';
-      topLabel.style.top = '20px';
+      topLabel.style.top = '10px';
       topLabel.style.left = `${100 + width/2}px`;
-      topLabel.style.color = '#ffffff';
-      topLabel.style.fontSize = '24px';
+      topLabel.style.color = '#222222';
+      topLabel.style.fontSize = '18px';
+      topLabel.style.fontWeight = '500';
       topLabel.style.textAlign = 'center';
+      topLabel.style.width = '80px';
+      topLabel.style.wordWrap = 'break-word';
+      topLabel.style.whiteSpace = 'pre-wrap';
+      topLabel.style.lineHeight = '1.2';
       topLabel.style.transform = 'translateX(-50%)';
       exportContainer.appendChild(topLabel);
       
       const bottomLabel = document.createElement('div');
       bottomLabel.textContent = labelTexts.y2;
       bottomLabel.style.position = 'absolute';
-      bottomLabel.style.bottom = '20px';
+      bottomLabel.style.bottom = '10px';
       bottomLabel.style.left = `${100 + width/2}px`;
-      bottomLabel.style.color = '#ffffff';
-      bottomLabel.style.fontSize = '24px';
+      bottomLabel.style.color = '#222222';
+      bottomLabel.style.fontSize = '18px';
+      bottomLabel.style.fontWeight = '500';
       bottomLabel.style.textAlign = 'center';
+      bottomLabel.style.width = '80px';
+      bottomLabel.style.wordWrap = 'break-word';
+      bottomLabel.style.whiteSpace = 'pre-wrap';
+      bottomLabel.style.lineHeight = '1.2';
       bottomLabel.style.transform = 'translateX(-50%)';
       exportContainer.appendChild(bottomLabel);
       
@@ -139,7 +159,7 @@ function App() {
       
       // 使用html2canvas截图
       html2canvas(exportContainer, {
-        backgroundColor: '#2c2c2c',
+        backgroundColor: '#ffffff', // 白色背景
         scale: 2,
         logging: true,
         useCORS: true

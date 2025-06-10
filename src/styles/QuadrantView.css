@@ -1,9 +1,18 @@
+/* 桌面端默认样式 */
 .quadrant-container {
-  position: relative;
-  width: 800px;
+  width: 900px;
   height: 600px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  margin: 40px auto 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.quadrant {
+  position: absolute;
+  box-sizing: border-box;
 }
 
 /* 坐标轴样式 */
@@ -26,80 +35,34 @@
   left: 50%;
 }
 
-/* 箭头样式 */
-.arrow-right {
-  position: absolute;
-  right: 0;
-  top: -8px;
-  width: 0;
-  height: 0;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  border-left: 18px solid #000;
+/* 坐标轴标签绝对定位 - 全部在图形外面，允许更大宽度 */
+.x1-outer { 
+  left: -120px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  width: 110px; 
+  max-width: 110px;
 }
-
-.arrow-up {
-  position: absolute;
-  top: 0;
-  left: -8px;
-  width: 0;
-  height: 0;
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-bottom: 18px solid #000;
+.x2-outer { 
+  right: -120px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  width: 110px; 
+  max-width: 110px;
 }
-
-/* 坐标轴标签 - 外侧位置 */
-.axis-label {
-  position: absolute;
-  background: transparent;
-  border: none;
-  font-size: 16px;
-  text-align: center;
-  width: 96px; /* 增加宽度以容纳6个汉字 */
-  height: 40px; /* 增加高度以容纳2行文字 */
-  outline: none;
-  white-space: pre-wrap; /* 允许文本换行 */
-  word-break: break-word; /* 在单词间断行 */
-  line-height: 20px; /* 设置行高使两行文字能够正常显示 */
-  padding: 0;
-  resize: none;
-  overflow: hidden;
+.y1-outer { 
+  top: -60px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 110px; 
+  max-width: 110px;
 }
-
-/* 每行最多显示6个汉字 */
-.axis-label::after {
-  content: "";
-  display: block;
-  width: 100%;
-}
-
-/* 左侧标签 */
-.x1-outer {
-  left: -100px; /* 调整位置以适应更宽的标签 */
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* 右侧标签 */
-.x2-outer {
-  right: -100px; /* 调整位置以适应更宽的标签 */
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* 上方标签 */
-.y1-outer {
-  top: -50px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* 下方标签 */
-.y2-outer {
-  bottom: -50px;
-  left: 50%;
-  transform: translateX(-50%);
+.y2-outer { 
+  bottom: -60px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 110px; 
+  max-width: 110px;
 }
 
 /* 导出图片时使用的标签样式 */
@@ -135,6 +98,7 @@
   transition: box-shadow 0.2s;
   line-height: 1.2; /* 缩小行间距 */
   font-size: 14px; /* 稍微减小默认字体大小 */
+  pointer-events: auto;
 }
 
 .content-item:hover {
@@ -187,4 +151,223 @@
   opacity: 0.8;
   z-index: 100;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.todo-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  border: 2px solid #666;
+  border-radius: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  position: relative;
+}
+
+.todo-checkbox:checked {
+  background-color: #4CAF50;
+  border-color: #4CAF50;
+}
+
+.todo-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.todo-item.completed .content-text {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.content-text {
+  flex: 1;
+  word-break: break-word;
+}
+
+/* 桌面端四象限绝对定位和分布 */
+.quadrant.A {
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  border-right: 1px solid #444;
+  border-bottom: 1px solid #444;
+  z-index: 1;
+}
+
+.quadrant.B {
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 50%;
+  border-left: 1px solid #444;
+  border-bottom: 1px solid #444;
+  z-index: 1;
+}
+
+.quadrant.C {
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 50%;
+  border-left: 1px solid #444;
+  border-top: 1px solid #444;
+  z-index: 1;
+}
+
+.quadrant.D {
+  top: 50%;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  border-right: 1px solid #444;
+  border-top: 1px solid #444;
+  z-index: 1;
+}
+
+.axis-labels {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.axis-labels textarea {
+  position: absolute;
+  background: transparent;
+  color: #222;
+  border: none;
+  border-radius: 0;
+  font-size: 18px;
+  font-weight: 500;
+  min-width: 32px;
+  min-height: 24px;
+  max-width: 120px;
+  box-shadow: none;
+  padding: 4px 8px;
+  text-align: center;
+  outline: none;
+  resize: none;
+  transition: border 0.2s;
+  pointer-events: auto;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow: visible;
+  line-height: 1.2;
+}
+
+.axis-labels textarea:focus {
+  border-bottom: 1.5px solid #b0b0b0;
+  background: #f8f8f8;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .quadrant-container {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    max-width: 100vw;
+    height: 60vh;
+    min-height: 300px;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    position: relative;
+  }
+  .quadrant {
+    position: static;
+    flex: 1 1 0;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 2px;
+    border: none;
+  }
+  .axis-labels textarea {
+    font-size: 14px;
+    min-width: 28px;
+    min-height: 20px;
+    max-width: 80px;
+    padding: 2px 8px;
+  }
+  .x1-outer { left: -85px; width: 80px; max-width: 80px; }
+  .x2-outer { right: -85px; width: 80px; max-width: 80px; }
+  .y1-outer { top: -45px; width: 80px; max-width: 80px; }
+  .y2-outer { bottom: -45px; width: 80px; max-width: 80px; }
+}
+
+.quadrant-lines {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.quadrant-lines::before,
+.quadrant-lines::after {
+  content: '';
+  position: absolute;
+  background: #b0b0b0;
+  z-index: 0;
+}
+.quadrant-lines::before {
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+.quadrant-lines::after {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+/* 只保留正向箭头 */
+.before-arrow-up {
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid #b0b0b0;
+  transform: translateX(-50%);
+}
+.after-arrow-right {
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 14px solid #b0b0b0;
+  transform: translateY(-50%);
 }

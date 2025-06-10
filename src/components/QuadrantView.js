@@ -11,8 +11,8 @@ const QuadrantView = forwardRef(({ quadrantTitles, quadrantContents, onTitleChan
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const quadrantRef = useRef(null);
   
-  // 处理容器点击 - 现在可以在任何地方点击添加内容
-  const handleContainerClick = (e) => {
+  // 处理容器点击 - 现在改为双击添加内容
+  const handleContainerDoubleClick = (e) => {
     // 如果点击的是内容项或编辑器，不处理
     if (e.target.closest('.content-item') || e.target.closest('.text-editor') || 
         e.target.closest('.axis-label')) {
@@ -83,6 +83,24 @@ const QuadrantView = forwardRef(({ quadrantTitles, quadrantContents, onTitleChan
   // 处理内容项点击 - 编辑功能
   const handleContentItemClick = (quadrant, index, e) => {
     e.stopPropagation(); // 阻止事件冒泡
+    
+    // 如果点击的是待办事项的复选框，切换完成状态
+    if (e.target.type === 'checkbox') {
+      const updatedContents = [...quadrantContents[quadrant]];
+      const item = updatedContents[index];
+      const isCompleted = item.text.startsWith('☑ ');
+      updatedContents[index] = {
+        ...item,
+        text: isCompleted ? `□ ${item.text.slice(2)}` : `☑ ${item.text.slice(2)}`
+      };
+      onAddContent(quadrant, updatedContents);
+      return;
+    }
+  };
+  
+  // 处理内容项双击 - 编辑功能
+  const handleContentItemDoubleClick = (quadrant, index, e) => {
+    e.stopPropagation(); // 阻止事件冒泡
     setActiveQuadrant(quadrant);
     setEditingItem(index);
     
@@ -102,60 +120,84 @@ const QuadrantView = forwardRef(({ quadrantTitles, quadrantContents, onTitleChan
     onAddContent(quadrant, updatedContents);
   };
   
-  // 开始拖动
-  const handleDragStart = (quadrant, index, e) => {
-    e.preventDefault(); // 阻止默认行为
-    e.stopPropagation();
-    
-    // 如果点击的是删除按钮，不开始拖动
-    if (e.target.closest('.delete-button')) {
-      return;
-    }
-    
-    const itemElement = e.currentTarget;
-    const rect = itemElement.getBoundingClientRect();
-    
-    // 计算鼠标点击位置与元素左上角的偏移
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-    
-    setDraggingItem({ quadrant, index });
-    setDragOffset({ x: offsetX, y: offsetY });
-    
-    // 添加拖动中的样式
-    itemElement.classList.add('dragging');
-  };
+  // 添加事件处理
+  useEffect(() => {
+    const handleMove = (e) => {
+      if (draggingItem) {
+        handleDrag(e);
+      }
+    };
+
+    const handleEnd = () => {
+      if (draggingItem) {
+        handleDragEnd();
+      }
+    };
+
+    // 添加鼠标事件
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleEnd);
+
+    // 添加触摸事件
+    document.addEventListener('touchmove', handleMove, { passive: false });
+    document.addEventListener('touchend', handleEnd);
+    document.addEventListener('touchcancel', handleEnd);
+
+    return () => {
+      // 移除鼠标事件
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleEnd);
+
+      // 移除触摸事件
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleEnd);
+      document.removeEventListener('touchcancel', handleEnd);
+    };
+  }, [draggingItem, dragOffset, quadrantContents]);
   
-  // 拖动中
+  // 处理拖动
   const handleDrag = (e) => {
     if (!draggingItem) return;
     
-    // 使用e.currentTarget代替quadrantRef.current，避免ref为null的问题
+    // 获取触摸或鼠标事件的位置
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    // 获取容器和象限的边界
     const containerRect = document.querySelector('.quadrant-container').getBoundingClientRect();
-    
+    const itemWidth = 100; // 可根据实际内容宽度调整
+    const itemHeight = 50; // 可根据实际内容高度调整
+
     // 计算新位置，考虑拖动偏移
-    let newX = e.clientX - containerRect.left - dragOffset.x;
-    let newY = e.clientY - containerRect.top - dragOffset.y;
-    
-    // 限制在容器内
-    newX = Math.max(0, Math.min(newX, containerRect.width - 100));
-    newY = Math.max(0, Math.min(newY, containerRect.height - 50));
-    
+    let newX = clientX - containerRect.left - dragOffset.x;
+    let newY = clientY - containerRect.top - dragOffset.y;
+
+    // 计算象限边界
+    const quadrantRects = {
+      A: { left: 0, top: 0, width: containerRect.width / 2, height: containerRect.height / 2 },
+      B: { left: containerRect.width / 2, top: 0, width: containerRect.width / 2, height: containerRect.height / 2 },
+      C: { left: containerRect.width / 2, top: containerRect.height / 2, width: containerRect.width / 2, height: containerRect.height / 2 },
+      D: { left: 0, top: containerRect.height / 2, width: containerRect.width / 2, height: containerRect.height / 2 }
+    };
     // 确定当前位置所在的象限
     let newQuadrant;
-    if (e.clientX < containerRect.left + containerRect.width / 2 && 
-        e.clientY < containerRect.top + containerRect.height / 2) {
+    if (clientX < containerRect.left + containerRect.width / 2 && 
+        clientY < containerRect.top + containerRect.height / 2) {
       newQuadrant = 'A';
-    } else if (e.clientX >= containerRect.left + containerRect.width / 2 && 
-               e.clientY < containerRect.top + containerRect.height / 2) {
+    } else if (clientX >= containerRect.left + containerRect.width / 2 && 
+               clientY < containerRect.top + containerRect.height / 2) {
       newQuadrant = 'B';
-    } else if (e.clientX >= containerRect.left + containerRect.width / 2 && 
-               e.clientY >= containerRect.top + containerRect.height / 2) {
+    } else if (clientX >= containerRect.left + containerRect.width / 2 && 
+               clientY >= containerRect.top + containerRect.height / 2) {
       newQuadrant = 'C';
     } else {
       newQuadrant = 'D';
     }
-    
+    const rect = quadrantRects[newQuadrant];
+    // 限制在象限内
+    newX = Math.max(rect.left, Math.min(newX, rect.left + rect.width - itemWidth));
+    newY = Math.max(rect.top, Math.min(newY, rect.top + rect.height - itemHeight));
+
     // 更新内容位置
     const { quadrant: oldQuadrant, index } = draggingItem;
     const item = quadrantContents[oldQuadrant][index];
@@ -172,7 +214,6 @@ const QuadrantView = forwardRef(({ quadrantTitles, quadrantContents, onTitleChan
       // 跨象限移动
       // 从原象限移除
       const oldQuadrantContents = quadrantContents[oldQuadrant].filter((_, i) => i !== index);
-      
       // 添加到新象限
       const newQuadrantContents = [
         ...quadrantContents[newQuadrant],
@@ -181,14 +222,40 @@ const QuadrantView = forwardRef(({ quadrantTitles, quadrantContents, onTitleChan
           position: { x: newX, y: newY }
         }
       ];
-      
       // 更新两个象限
       onAddContent(oldQuadrant, oldQuadrantContents);
       onAddContent(newQuadrant, newQuadrantContents);
-      
       // 更新拖动项信息
       setDraggingItem({ quadrant: newQuadrant, index: newQuadrantContents.length - 1 });
     }
+  };
+  
+  // 开始拖动
+  const handleDragStart = (quadrant, index, e) => {
+    e.preventDefault(); // 阻止默认行为
+    e.stopPropagation();
+    
+    // 如果点击的是删除按钮，不开始拖动
+    if (e.target.closest('.delete-button')) {
+      return;
+    }
+    
+    const itemElement = e.currentTarget;
+    const rect = itemElement.getBoundingClientRect();
+    
+    // 获取触摸或鼠标事件的位置
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    // 计算鼠标点击位置与元素左上角的偏移
+    const offsetX = clientX - rect.left;
+    const offsetY = clientY - rect.top;
+    
+    setDraggingItem({ quadrant, index });
+    setDragOffset({ x: offsetX, y: offsetY });
+    
+    // 添加拖动中的样式
+    itemElement.classList.add('dragging');
   };
   
   // 结束拖动
@@ -202,170 +269,87 @@ const QuadrantView = forwardRef(({ quadrantTitles, quadrantContents, onTitleChan
     setDraggingItem(null);
   };
   
-  // 添加鼠标移动和鼠标抬起的事件监听
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (draggingItem) {
-        handleDrag(e);
-      }
-    };
+  // 渲染内容项
+  const renderContentItem = (item, quadrant, index) => {
+    const isTodo = item.text.startsWith('□ ') || item.text.startsWith('☑ ');
+    const isCompleted = item.text.startsWith('☑ ');
+    const displayText = isTodo ? item.text.slice(2) : item.text;
     
-    const handleMouseUp = () => {
-      if (draggingItem) {
-        handleDragEnd();
-      }
-    };
-    
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [draggingItem, dragOffset, quadrantContents]); // 添加quadrantContents作为依赖项
+    return (
+      <div
+        key={index}
+        className={`content-item ${isTodo ? 'todo-item' : ''} ${isCompleted ? 'completed' : ''}`}
+        style={{
+          left: item.position.x,
+          top: item.position.y,
+          color: item.color,
+          fontSize: item.fontSize
+        }}
+        onClick={(e) => handleContentItemClick(quadrant, index, e)}
+        onDoubleClick={(e) => handleContentItemDoubleClick(quadrant, index, e)}
+        onMouseDown={(e) => handleDragStart(quadrant, index, e)}
+        onTouchStart={(e) => handleDragStart(quadrant, index, e)}
+      >
+        {isTodo && (
+          <input
+            type="checkbox"
+            checked={isCompleted}
+            onChange={(e) => handleContentItemClick(quadrant, index, e)}
+            className="todo-checkbox"
+          />
+        )}
+        <span className="content-text">{displayText}</span>
+        <button 
+          className="delete-button"
+          onClick={(e) => handleContentItemDelete(quadrant, index, e)}
+        >
+          ×
+        </button>
+      </div>
+    );
+  };
   
   return (
-    <div className="quadrant-container" ref={ref || quadrantRef} onClick={handleContainerClick}>
-      {/* 坐标轴 */}
-      <div className="axis x-axis">
-        <div className="arrow-right"></div>
+    <div className="quadrant-container" ref={ref || quadrantRef} onDoubleClick={handleContainerDoubleClick}>
+      {/* 坐标轴标签 */}
+      <div className="axis-labels">
+        <textarea 
+          className="x1-outer"
+          value={quadrantTitles.x1}
+          onChange={(e) => handleTitleEdit('x1', e)}
+          placeholder="输入标签..."
+        />
+        <textarea 
+          className="x2-outer"
+          value={quadrantTitles.x2}
+          onChange={(e) => handleTitleEdit('x2', e)}
+          placeholder="输入标签..."
+        />
+        <textarea 
+          className="y1-outer"
+          value={quadrantTitles.y1}
+          onChange={(e) => handleTitleEdit('y1', e)}
+          placeholder="输入标签..."
+        />
+        <textarea 
+          className="y2-outer"
+          value={quadrantTitles.y2}
+          onChange={(e) => handleTitleEdit('y2', e)}
+          placeholder="输入标签..."
+        />
       </div>
-      <div className="axis y-axis">
-        <div className="arrow-up"></div>
+      {/* 象限分割线，仅做视觉分割 */}
+      <div className="quadrant-lines">
+        <div className="before-arrow-up"></div>
+        <div className="after-arrow-right"></div>
       </div>
-      
-      {/* 坐标轴标签 - 现在放在外侧 */}
-      <textarea 
-        className="axis-label x1-outer" 
-        value={quadrantTitles.x1} 
-        onChange={(e) => handleTitleEdit('x1', e)}
-        maxLength={12}
-        onClick={(e) => e.stopPropagation()}
-      />
-      <textarea 
-        className="axis-label x2-outer" 
-        value={quadrantTitles.x2} 
-        onChange={(e) => handleTitleEdit('x2', e)}
-        maxLength={12}
-        onClick={(e) => e.stopPropagation()}
-      />
-      <textarea 
-        className="axis-label y1-outer" 
-        value={quadrantTitles.y1} 
-        onChange={(e) => handleTitleEdit('y1', e)}
-        maxLength={12}
-        onClick={(e) => e.stopPropagation()}
-      />
-      <textarea 
-        className="axis-label y2-outer" 
-        value={quadrantTitles.y2} 
-        onChange={(e) => handleTitleEdit('y2', e)}
-        maxLength={12}
-        onClick={(e) => e.stopPropagation()}
-      />
-      
-      {/* 四个象限 - 不再需要单独的点击处理 */}
-      <div className="quadrant A">
-        {quadrantContents.A.map((item, index) => (
-          <div 
-            key={`A-${index}`}
-            className="content-item"
-            style={{
-              left: item.position.x,
-              top: item.position.y,
-              color: item.color,
-              fontSize: item.fontSize
-            }}
-            onMouseDown={(e) => handleDragStart('A', index, e)}
-            onDoubleClick={(e) => handleContentItemClick('A', index, e)}
-          >
-            {item.text}
-            <button 
-              className="delete-button" 
-              onClick={(e) => handleContentItemDelete('A', index, e)}
-            >
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
-      <div className="quadrant B">
-        {quadrantContents.B.map((item, index) => (
-          <div 
-            key={`B-${index}`}
-            className="content-item"
-            style={{
-              left: item.position.x,
-              top: item.position.y,
-              color: item.color,
-              fontSize: item.fontSize
-            }}
-            onMouseDown={(e) => handleDragStart('B', index, e)}
-            onDoubleClick={(e) => handleContentItemClick('B', index, e)}
-          >
-            {item.text}
-            <button 
-              className="delete-button" 
-              onClick={(e) => handleContentItemDelete('B', index, e)}
-            >
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
-      <div className="quadrant C">
-        {quadrantContents.C.map((item, index) => (
-          <div 
-            key={`C-${index}`}
-            className="content-item"
-            style={{
-              left: item.position.x,
-              top: item.position.y,
-              color: item.color,
-              fontSize: item.fontSize
-            }}
-            onMouseDown={(e) => handleDragStart('C', index, e)}
-            onDoubleClick={(e) => handleContentItemClick('C', index, e)}
-          >
-            {item.text}
-            <button 
-              className="delete-button" 
-              onClick={(e) => handleContentItemDelete('C', index, e)}
-            >
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
-      <div className="quadrant D">
-        {quadrantContents.D.map((item, index) => (
-          <div 
-            key={`D-${index}`}
-            className="content-item"
-            style={{
-              left: item.position.x,
-              top: item.position.y,
-              color: item.color,
-              fontSize: item.fontSize
-            }}
-            onMouseDown={(e) => handleDragStart('D', index, e)}
-            onDoubleClick={(e) => handleContentItemClick('D', index, e)}
-          >
-            {item.text}
-            <button 
-              className="delete-button" 
-              onClick={(e) => handleContentItemDelete('D', index, e)}
-            >
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
-      
+      {/* 渲染所有内容项 */}
+      {['A','B','C','D'].flatMap(q =>
+        quadrantContents[q].map((item, idx) => renderContentItem(item, q, idx))
+      )}
       {/* 文本编辑器 */}
       {showTextEditor && (
-        <TextEditor 
+        <TextEditor
           position={editorPosition}
           onSave={handleAddContent}
           onCancel={() => {

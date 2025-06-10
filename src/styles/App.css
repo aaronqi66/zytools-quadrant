@@ -35,3 +35,92 @@ main {
   justify-content: center;
   align-items: center;
 }
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .app-container {
+    padding: 0;
+  }
+
+  .app-header {
+    margin: 0;
+    padding: 8px 0;
+  }
+
+  .app-header h1 {
+    font-size: 24px;
+  }
+
+  .toolbar {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .toolbar button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .quadrant-container {
+    width: 100vw;
+    max-width: 100vw;
+    height: 60vh;
+    min-height: 300px;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .content-item {
+    max-width: 90%;
+    font-size: 14px !important;
+  }
+
+  .todo-checkbox {
+    width: 24px;
+    height: 24px;
+  }
+
+  .text-editor {
+    width: 90%;
+    max-width: 90%;
+  }
+
+  .text-editor textarea {
+    font-size: 16px;
+    padding: 8px;
+  }
+
+  .editor-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .control-group {
+    width: 100%;
+  }
+
+  .button-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .button-group button {
+    flex: 1;
+    margin: 0 5px;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) {
+  .content-item:hover .delete-button {
+    opacity: 1;
+  }
+
+  .delete-button {
+    opacity: 1;
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+  }
+}
